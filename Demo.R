@@ -189,11 +189,3 @@ healthData = disINd %>% select(YearStart, YearEnd, LocationAbbr,Topic, Question,
 
 
 
-
-
-
-
-
-
-
-# ask about glasses blue light emission filter protection
