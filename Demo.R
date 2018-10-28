@@ -180,11 +180,12 @@ healthData = disINd %>% select(YearStart, YearEnd, LocationAbbr,Topic, Question,
 
 
 
-
-
-
-
-
+## Github commands & reminders ##
+## basic git commands: https://confluence.atlassian.com/bitbucketserver/basic-git-commands-776639767.html
+#### references:
+## 1. https://help.github.com/articles/adding-a-file-to-a-repository-using-the-command-line/
+## 2. https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository
+## changing remote url: https://help.github.com/articles/changing-a-remote-s-url/
 
 
 
