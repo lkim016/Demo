@@ -10,11 +10,12 @@ library(ggplot2)
 library(maps)
 library(dplyr)
 library(stringr)
+library(googleVis)
 
 # variables for data files
 gusa = map_data("state") # graphical map
 
-dis.Ind = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv")
+dis.Ind = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv", stringsAsFactors = FALSE)
 #* need to put chci.csv back in "Project 2/ACS_DP02 data"
 chci = read.csv("chci.csv")
 
@@ -144,6 +145,20 @@ ggplot(data=comp.hs, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=Lo
   ylab("Percent") + 
   ggtitle("High School Computer Use")
 
+# Google Vis plot - added
+library(datasets)
+
+str(obesity)
+obesity$DataValue = as.numeric(obesity$DataValue)
+G3 = gvisGeoChart(filter(obesity, YearStart %in% 2016), 
+                  locationvar = "LocationDesc", 
+                  colorvar = "DataValue",
+                  options=list(region="US", 
+                               displayMode="regions", 
+                               resolution="provinces",
+                               width=800, height=600))
+plot(G3)
+
 
 
 ####################
@@ -180,13 +195,20 @@ healthData = disINd %>% select(YearStart, YearEnd, LocationAbbr,Topic, Question,
 
 
 
-## Github commands & reminders ##
-## basic git commands: https://confluence.atlassian.com/bitbucketserver/basic-git-commands-776639767.html
-#### references:
-## 1. https://help.github.com/articles/adding-a-file-to-a-repository-using-the-command-line/
-## 2. https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository
-## changing remote url: https://help.github.com/articles/changing-a-remote-s-url/
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+# ask about glasses blue light emission filter protection
