@@ -178,54 +178,9 @@ final.ob = left_join(final.ob, hs, by = colmerge)
 
 colnames(final.ob) = c("states", "year", "obesity.over.18","leisure", "hs.comp.use", "poverty","hs.soda.intake","over.18.hs.grad")
 
-####################
-plot + geom_point() + geom_line(aes(y = pred.sc), color="red")
-
-colnames(disInd)
-colnames(chci)
-
-# checking data frequency
-dValUn = as.data.frame(table(disInd$DataValueUnit))
-dValTy = as.data.frame(table(disInd$DataValueType))
-dVal = as.data.frame(table(disInd$DataValue))
-question = as.data.frame(table(disInd$Question))
-gusa = as.data.frame(table(gusa$reg))
-strat = as.data.frame(table())
-
-# data4 = as.data.frame(table(disInd$DataValueAlt)) // same as DataValue
-
-
-# only get the data that is DataValueType = Age-adjusted Prevalence / only get Question = obesity
-resp = disInd %>% select()
-dataClean = as.data.frame(table(disInd$response))
-
-# years: 2011-2016
-# is the crude rate a general rate of the dataset? and is the Age-adjusted prevalence a standard deviation?
-# story: 
-
-# analyze the data
-# organize the data by year and states (50 states)
-# only need chci16
-
-healthData = disINd %>% select(YearStart, YearEnd, LocationAbbr,Topic, Question,DataValueUnit, DataValueType,DataValue )
+is.na(final.ob) = NA
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ask about glasses blue light emission filter protection
