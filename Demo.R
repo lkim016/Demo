@@ -1,23 +1,24 @@
 ### Lori Kim
 ## 
 
-setwd("/Volumes/LEXAR/DATA SCIENCE/Nov 5 Demo")
+setwd("/Volumes/LEXAR/DATA SCIENCE/Demo")
 setwd("/Users/munchbook/Desktop/Cindy Class")
 
 #install.packages("maps")
 #install.packages("ggplot2") 
+install.packages("googleVis")
 library(ggplot2)
 library(maps)
 library(dplyr)
 library(stringr)
 library(googleVis)
+library(readxl)
 
 # variables for data files
 gusa = map_data("state") # graphical map
 
 dis.Ind = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv", stringsAsFactors = FALSE)
-#* need to put chci.csv back in "Project 2/ACS_DP02 data"
-chci = read.csv("chci.csv")
+chci = read_excel("CHCI_state.xlsx", skip = 1)
 
 # clean up disease question by obesity
 obesity = dis.Ind %>%
@@ -159,7 +160,23 @@ G3 = gvisGeoChart(filter(obesity, YearStart %in% 2016),
                                width=800, height=600))
 plot(G3)
 
+# clean up data more LocationDesc, YearStart, DataValue
+obesity.stat = obesity.stat %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+leisure = leisure %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+comp.hs = comp.hs %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+poverty = poverty %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+soda = soda %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+hs = hs %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 
+colmerge = c("LocationDesc", "YearStart")
+
+final.ob = merge(obesity.stat, leisure, by = colmerge)
+final.ob = left_join(final.ob, comp.hs, by = colmerge)
+final.ob = left_join(final.ob, poverty, by = colmerge)
+final.ob = left_join(final.ob, soda, by = colmerge)
+final.ob = left_join(final.ob, hs, by = colmerge)
+
+colnames(final.ob) = c("states", "year", "obesity.over.18","leisure", "hs.comp.use", "poverty","hs.soda.intake","over.18.hs.grad")
 
 ####################
 plot + geom_point() + geom_line(aes(y = pred.sc), color="red")
