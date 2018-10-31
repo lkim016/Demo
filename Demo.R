@@ -37,15 +37,15 @@ obesity = left_join(states, obesity, by ="LocationDesc")
 
 # plot
 plot = ggplot(filter(obesity, LocationDesc %in% c("California", "Alabama")),
-       aes(x=YearStart, y=DataValue, color=LocationDesc)) + geom_point()
+              aes(x=YearStart, y=DataValue, color=LocationDesc)) + geom_point()
 plot
 
-# control variable - added
+# control variable
 filtered.states = c("California", "Alabama", "New York", "Florida", "Texas")
 filtered.year = as.data.frame(c(2011:2016))
 colnames(filtered.year) = c("year")
 
-#plot v2 - added
+#plot v2
 obesity.stat = filter(obesity, LocationDesc %in% filtered.states)
 ggplot(data=obesity.stat, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
@@ -54,7 +54,7 @@ ggplot(data=obesity.stat, aes(x=YearStart, y=DataValue, group=LocationDesc, colo
   ylab("Percent") + 
   ggtitle("Obesity over the Years")
 
-# leisure - getting leisure stats - added
+# leisure - getting leisure stats
 leisure = dis.Ind %>%
   select(-one_of(c("YearEnd"))) %>%
   filter( str_detect(Question, "No leisure-time physical activity among adults aged >= 18 years")) %>%
@@ -64,7 +64,7 @@ leisure = dis.Ind %>%
   filter(LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.year$year)
 
-# leisure - plot - added
+# leisure - plot
 ggplot(data=leisure, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
@@ -72,7 +72,7 @@ ggplot(data=leisure, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=Lo
   ylab("Percent") + 
   ggtitle("No Leisure Time")
 
-# soda - getting soda stats - added
+# soda - getting soda stats
 soda = dis.Ind %>%
   select(-one_of(c("YearEnd"))) %>%
   filter( str_detect(Question, "Soda consumption among high school students")) %>%
@@ -82,7 +82,7 @@ soda = dis.Ind %>%
   filter( LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.year$year)
 
-# soda - plot - added
+# soda - plot
 ggplot(data=soda, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
@@ -90,7 +90,7 @@ ggplot(data=soda, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=Locat
   ylab("Percent") + 
   ggtitle("Soda consumption among HS students")
 
-# poverty - getting poverty stats - added
+# poverty - getting poverty stats
 poverty = dis.Ind %>%
   select(-one_of(c("YearEnd"))) %>%
   filter( str_detect(Question, "Poverty")) %>%
@@ -101,7 +101,7 @@ poverty = dis.Ind %>%
   filter( LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.year$year)
 
-# poverty - plot - added
+# poverty - plot
 poverty = filter(poverty, LocationDesc %in% filtered.states)
 ggplot(data=poverty, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
@@ -110,7 +110,7 @@ ggplot(data=poverty, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=Lo
   ylab("Percent") + 
   ggtitle("poverty")
 
-# hs - getting hs stats - added
+# hs - getting hs stats
 hs = dis.Ind %>%
   select(-one_of(c("YearEnd"))) %>%
   filter( str_detect(Question, "High school completion among adults aged 18-24 years")) %>%
@@ -120,7 +120,7 @@ hs = dis.Ind %>%
   filter( LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.year$year)
 
-# high school - plot - added
+# high school - plot
 ggplot(data=hs, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
@@ -128,7 +128,7 @@ ggplot(data=hs, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=Locatio
   ylab("Percent") + 
   ggtitle("High School Completion")
 
-# computer use in hs - getting hs stats - added
+# computer use in hs - getting hs stats
 comp.hs = dis.Ind %>%
   select(-one_of(c("YearEnd"))) %>%
   filter( str_detect(Question, "Computer use among high school students")) %>%
@@ -138,13 +138,32 @@ comp.hs = dis.Ind %>%
   filter( LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.year$year)
 
-# computer use in comp.hs - plot - added
+# computer use in comp.hs - plot
 ggplot(data=comp.hs, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
   xlab("Years") +
   ylab("Percent") + 
   ggtitle("High School Computer Use")
+
+# hs obesity
+obesity.hs = dis.Ind %>%
+  select(-one_of(c("YearEnd"))) %>%
+  filter( str_detect(Question, "Obesity among high school students")) %>%
+  filter( str_detect(DataValueType, "Crude Prevalence")) %>%
+  filter(str_detect(Stratification1, "Overall" )) %>%
+  filter (LocationDesc %in% states$LocationDesc) %>%
+  filter( LocationDesc %in% filtered.states) %>%
+  filter( YearStart %in% filtered.year$year)
+
+# hs obesity - plot
+obesity.hs = filter(obesity.hs, LocationDesc %in% filtered.states)
+ggplot(data=obesity.hs, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Percent") + 
+  ggtitle("Obesity among HS")
 
 # Google Vis plot - added
 library(datasets)
@@ -177,55 +196,3 @@ final.ob = left_join(final.ob, soda, by = colmerge)
 final.ob = left_join(final.ob, hs, by = colmerge)
 
 colnames(final.ob) = c("states", "year", "obesity.over.18","leisure", "hs.comp.use", "poverty","hs.soda.intake","over.18.hs.grad")
-
-####################
-plot + geom_point() + geom_line(aes(y = pred.sc), color="red")
-
-colnames(disInd)
-colnames(chci)
-
-# checking data frequency
-dValUn = as.data.frame(table(disInd$DataValueUnit))
-dValTy = as.data.frame(table(disInd$DataValueType))
-dVal = as.data.frame(table(disInd$DataValue))
-question = as.data.frame(table(disInd$Question))
-gusa = as.data.frame(table(gusa$reg))
-strat = as.data.frame(table())
-
-# data4 = as.data.frame(table(disInd$DataValueAlt)) // same as DataValue
-
-
-# only get the data that is DataValueType = Age-adjusted Prevalence / only get Question = obesity
-resp = disInd %>% select()
-dataClean = as.data.frame(table(disInd$response))
-
-# years: 2011-2016
-# is the crude rate a general rate of the dataset? and is the Age-adjusted prevalence a standard deviation?
-# story: 
-
-# analyze the data
-# organize the data by year and states (50 states)
-# only need chci16
-
-healthData = disINd %>% select(YearStart, YearEnd, LocationAbbr,Topic, Question,DataValueUnit, DataValueType,DataValue )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ask about glasses blue light emission filter protection
