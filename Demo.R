@@ -284,9 +284,13 @@ plot(G3)
 
 obesity = obesity %>% 
   select(one_of("YearStart", "LocationDesc", "DataValue")) 
-# filter (str_detect(LocationDesc, "California"))
-obesity$id = seq.int(nrow(obesity))
-J <- gvisMotionChart(obesity, idvar="DataValue", timevar="YearStart",
+ filter (str_detect(LocationDesc, "California"))
+ states = as.data.frame(state.name) 
+ states$id = seq.int(nrow(states))
+ colnames(states) = c("LocationDesc", "state.id")
+ obesity = merge(obesity, states, by = "LocationDesc")
+
+J <- gvisMotionChart(obesity, idvar="DavaValue", timevar="YearStart",
                      options=list(width=700, height=600))
 
 plot(J)
