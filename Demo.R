@@ -268,6 +268,20 @@ plot(G5)
 
 ### TO DO: MAKE INTERACTIVE DYNAMIC GRAPH - ATTEMPT
 
+# Google Vis plot - added
+library(datasets)
+
+str(obesity)
+obesity$DataValue2 = scale(as.numeric(obesity$DataValue))
+G3 = gvisGeoChart(filter(obesity, YearStart %in% 2016), 
+                  locationvar = "LocationDesc", 
+                  colorvar = "DataValue2",
+                  options=list(region="US", 
+                               displayMode="regions", 
+                               resolution="provinces",
+                               width=800, height=600))
+plot(G3)
+
 obesity = obesity %>% 
   select(one_of("YearStart", "LocationDesc", "DataValue")) 
 # filter (str_detect(LocationDesc, "California"))
