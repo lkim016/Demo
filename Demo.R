@@ -17,7 +17,7 @@ library(readxl)
 # THIS IS FOR OBESITY OVER 18
 
 # variables for data files
-    #gusa = map_data("state") # graphical map
+gusa = map_data("state") # graphical map
 chron.dis = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv", stringsAsFactors = FALSE)
 nutri = read.csv("Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
 
@@ -30,7 +30,7 @@ names(nutri)[11] = "DataValue" # changing nutri file Data_Value to Datavalue
       
       # get the 50 states
       # take out USA, District of Columbia, Guam, 
-      #states = as.data.frame(state.name)
+filtered.states = state.name
       #colnames(states) = c("LocationDesc")
       
       # join state
@@ -69,7 +69,7 @@ leisure = chron.dis %>%
   filter( str_detect(Question, "No leisure-time physical activity among adults aged >= 18 years")) %>%
   filter( !str_detect(DataValueType, "Crude Prevalence")) %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
-#  filter(LocationDesc %in% filtered.states) %>%
+# filter(LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.six.year)
 
 # leisure - plot
