@@ -271,7 +271,7 @@ plot(G5)
 # Google Vis plot - added
 
 adult.ob = adult.ob[,1:4]
-adult.ob$id = seq.int(nrow(adult.ob))
+#adult.ob$id = seq.int(nrow(adult.ob))
 J <- gvisMotionChart(adult.ob, idvar="states", timevar="year", xvar="leisure", yvar="obesity",
                      options=list(width=700, height=600))
 
