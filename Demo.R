@@ -42,7 +42,7 @@ filtered.states = state.name
 #plot
 
 # control variable
-filtered.states = c("California", "Alabama", "New York", "Florida", "Texas", "Mississippi", "West Virginia")
+# filtered.states = c("California", "Alabama", "New York", "Florida", "Texas", "Mississippi", "West Virginia")
 filtered.six.year = c(2011:2016)
 filtered.year = c(2011, 2013, 2015)
 
@@ -52,7 +52,7 @@ obesity = chron.dis %>%
   filter( str_detect(Question, "Overweight or obesity")) %>%
   filter( !str_detect(DataValueType, "Crude Prevalence")) %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
-  # filter(LocationDesc %in% filtered.states) %>%
+  filter(LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% (filtered.six.year))
 
 # obesity - plot
@@ -69,7 +69,7 @@ leisure = chron.dis %>%
   filter( str_detect(Question, "No leisure-time physical activity among adults aged >= 18 years")) %>%
   filter( !str_detect(DataValueType, "Crude Prevalence")) %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
-  # filter(LocationDesc %in% filtered.states) %>%
+  filter(LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.six.year)
 
 # leisure - plot
@@ -86,7 +86,7 @@ poverty = chron.dis %>%
   filter( str_detect(Question, "Poverty")) %>%
   filter (!str_detect(Question, "Poverty among women aged 18-44 years")) %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
-  #  filter( LocationDesc %in% filtered.states) %>%
+  filter( LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.six.year)
 
 # poverty - plot
@@ -120,7 +120,7 @@ diabetes = chron.dis %>%
   filter( str_detect(Question, "Prevalence of diagnosed diabetes")) %>%
   filter( !str_detect(DataValueType, "Crude Prevalence")) %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
-  #  filter( LocationDesc %in% filtered.states) %>%
+  filter( LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.six.year)
 
 # adults with diabetes - plot
@@ -187,8 +187,8 @@ adult.ob = left_join(adult.ob, fitness, by = colmerge)
 
 
 # renaming columns for adultobesity
-#colnames(adult.ob) = c("states", "year", "obesity", "leisure", "poverty",hs.grad","diabetes","vegetable","fitness")
-colnames(adult.ob) = c("states", "year", "obesity", "leisure", "poverty","hs.grad","diabetes")
+colnames(adult.ob) = c("states", "year", "obesity", "leisure", "poverty","hs.grad","diabetes","vegetable","fitness")
+#colnames(adult.ob) = c("states", "year", "obesity", "leisure", "poverty","hs.grad","diabetes")
 str(adult.ob)
 
 # doing the linear for adult obesity
@@ -270,7 +270,6 @@ plot(G5)
 
 # Google Vis plot - added
 
-adult.ob = adult.ob[,1:4]
 #adult.ob$id = seq.int(nrow(adult.ob))
 J <- gvisMotionChart(adult.ob, idvar="states", timevar="year", xvar="leisure", yvar="obesity",
                      options=list(width=700, height=600))
