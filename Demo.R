@@ -19,22 +19,18 @@ gusa = map_data("state") # graphical map
 chron.dis = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv", stringsAsFactors = FALSE)
 nutri = read.csv("Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
 
-#chci = read_excel("CHCI_state.xlsx", skip = 1)
+chron.dis$DataValue = as.numeric(chron.dis$DataValue)
+nutri$Data_Value = as.numeric(nutri$Data_Value)
 
-# clean up disease question by obesity
-obesity = chron.dis %>%
-  select(-one_of(c("YearEnd"))) %>%
-  filter( str_detect(Question, "Overweight or obesity")) %>%
-  filter( !str_detect(DataValueType, "Crude Prevalence")) %>%
-  filter(str_detect(Stratification1, "Overall" ))
+#chci = read_excel("CHCI_state.xlsx", skip = 1)
 
 # get the 50 states
 # take out USA, District of Columbia, Guam, 
-states = as.data.frame(state.name)
-colnames(states) = c("LocationDesc")
+#states = as.data.frame(state.name)
+#colnames(states) = c("LocationDesc")
 
 # join state
-obesity = left_join(states, obesity, by ="LocationDesc")
+#obesity = left_join(states, obesity, by ="LocationDesc")
 
 # plot
 plot = ggplot(filter(obesity, LocationDesc %in% c("California", "Alabama")),
@@ -42,13 +38,23 @@ plot = ggplot(filter(obesity, LocationDesc %in% c("California", "Alabama")),
 plot
 
 # control variable
-filtered.states = c("California", "Alabama", "New York", "Florida", "Texas")
-filtered.year = as.data.frame(c(2011:2016))
+filtered.states = c("California", "Alabama", "New York", "Florida", "Texas", "Mississippi", "West Virginia")
+filtered.six.yr = c(2011:2016)
+filtered.year = c(2011, 2013, 2015)
 colnames(filtered.year) = c("year")
 
-#plot v2
-obesity.stat = filter(obesity, LocationDesc %in% filtered.states)
-ggplot(data=obesity.stat, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+# obesity - getting obesity stats
+obesity = chron.dis %>%
+  select(-one_of(c("YearEnd"))) %>%
+  filter( str_detect(Question, "Overweight or obesity")) %>%
+  filter( !str_detect(DataValueType, "Crude Prevalence")) %>%
+  filter(str_detect(Stratification1, "Overall" )) %>%
+  filter (LocationDesc %in% states$LocationDesc) %>%
+  filter(LocationDesc %in% filtered.states) %>%
+  filter( YearStart %in% (filtered.six.yr))
+
+# obesity - plot
+ggplot(data=obesity, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
   xlab("Years") +
@@ -63,7 +69,7 @@ leisure = chron.dis %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
   filter (LocationDesc %in% states$LocationDesc) %>%
   filter(LocationDesc %in% filtered.states) %>%
-  filter( YearStart %in% filtered.year$year)
+  filter( YearStart %in% filtered.year)
 
 # leisure - plot
 ggplot(data=leisure, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
@@ -82,10 +88,9 @@ poverty = chron.dis %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
   filter (LocationDesc %in% states$LocationDesc) %>%
   filter( LocationDesc %in% filtered.states) %>%
-  filter( YearStart %in% filtered.year$year)
+  filter( YearStart %in% filtered.year)
 
 # poverty - plot
-poverty = filter(poverty, LocationDesc %in% filtered.states)
 ggplot(data=poverty, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
@@ -101,7 +106,7 @@ hs = chron.dis %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
   filter (LocationDesc %in% states$LocationDesc) %>%
   filter( LocationDesc %in% filtered.states) %>%
-  filter( YearStart %in% filtered.year$year)
+  filter( YearStart %in% filtered.year)
 
 # high school - plot
 ggplot(data=hs, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
@@ -112,27 +117,63 @@ ggplot(data=hs, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=Locatio
   ggtitle("High School Completion")
 
   
-  # adults with diabetes
-  obesity.dia = chron.dis %>%
-    select(-one_of(c("YearEnd"))) %>%
-    filter( str_detect(Question, "Prevalence of diagnosed diabetes")) %>%
-    filter( !str_detect(DataValueType, "Crude Prevalence")) %>%
-    filter(str_detect(Stratification1, "Overall" )) %>%
-    filter (LocationDesc %in% states$LocationDesc) %>%
-    filter( LocationDesc %in% filtered.states) %>%
-    filter( YearStart %in% filtered.year$year)
+# adults with diabetes - adult diabetes stats
+diabetes = chron.dis %>%
+  select(-one_of(c("YearEnd"))) %>%
+  filter( str_detect(Question, "Prevalence of diagnosed diabetes")) %>%
+  filter( !str_detect(DataValueType, "Crude Prevalence")) %>%
+  filter(str_detect(Stratification1, "Overall" )) %>%
+  filter (LocationDesc %in% states$LocationDesc) %>%
+  filter( LocationDesc %in% filtered.states) %>%
+  filter( YearStart %in% filtered.year)
 
-  # adults with diabetes - plot
-  obesity.dia = filter(obesity.dia, LocationDesc %in% filtered.states)
-  ggplot(data=obesity.dia, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
-    geom_line() +
-    geom_point() +
-    xlab("Years") +
-    ylab("Percent") + 
-    ggtitle("Adults with Diabetes")
+# adults with diabetes - plot
+ggplot(data=diabetes, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Percent") + 
+  ggtitle("Adults with Diabetes")
+  
+# vegetable consumption - vegetable consumption < one time daily stats
+vegetable = nutri %>%
+  select(-one_of(c("YearEnd"))) %>%
+  filter( str_detect(Question, "adults who engage in muscle-strengthening activities")) %>%
+  filter(str_detect(Stratification1, "Total" )) %>%
+  filter (LocationDesc %in% states$LocationDesc) %>%
+  filter( LocationDesc %in% filtered.states) %>%
+  filter( YearStart %in% filtered.year)
+
+# vegetable consumption - plot
+ggplot(data=vegetable, aes(x=YearStart, y=Data_Value, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Percent") + 
+  ggtitle("Vegetable Consumption")
+  
+  
+# vegetable consumption - vegetable consumption < one time daily stats
+fitness = nutri %>%
+  select(-one_of(c("YearEnd"))) %>%
+  filter( str_detect(Question, "at least 300")) %>%
+  filter(str_detect(Stratification1, "Total" )) %>%
+  filter (LocationDesc %in% states$LocationDesc) %>%
+  filter( LocationDesc %in% filtered.states) %>%
+  filter( YearStart %in% filtered.year)
+
+# vegetable consumption - plot
+ggplot(data=fitness, aes(x=YearStart, y=Data_Value, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Percent") + 
+  ggtitle("5 hrs/wk moderate-intense aerobic")
+
+
   
 # clean up data more LocationDesc, YearStart, DataValue for adult obesity
-obesity.stat = obesity.stat %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+obesity = obesity %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 leisure = leisure %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 poverty = poverty %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 hs = hs %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
@@ -165,7 +206,6 @@ summary(lin.fit)
 library(datasets)
   
 # standaradizing obesity for the map
-obesity$DataValue = as.numeric(obesity$DataValue)
 mean(obesity$DataValue)
 sd(obesity$DataValue)
 ?sd
@@ -184,6 +224,7 @@ G3 = gvisGeoChart(filter(obesity, YearStart %in% 2016),
                                resolution="provinces",
                                width=800, height=600))
 plot(G3)
+
 
 
 
