@@ -6,7 +6,7 @@ setwd("/Users/munchbook/Desktop/Cindy Class")
 
 #install.packages("maps")
 #install.packages("ggplot2") 
-install.packages("googleVis")
+#install.packages("googleVis")
 library(ggplot2)
 library(maps)
 library(dplyr)
@@ -269,28 +269,10 @@ plot(G5)
 ### TO DO: MAKE INTERACTIVE DYNAMIC GRAPH - ATTEMPT
 
 # Google Vis plot - added
-library(datasets)
 
-str(obesity)
-obesity$DataValue2 = scale(as.numeric(obesity$DataValue))
-G3 = gvisGeoChart(filter(obesity, YearStart %in% 2016), 
-                  locationvar = "LocationDesc", 
-                  colorvar = "DataValue2",
-                  options=list(region="US", 
-                               displayMode="regions", 
-                               resolution="provinces",
-                               width=800, height=600))
-plot(G3)
-
-obesity = obesity %>% 
-  select(one_of("YearStart", "LocationDesc", "DataValue")) 
- filter (str_detect(LocationDesc, "California"))
- states = as.data.frame(state.name) 
- states$id = seq.int(nrow(states))
- colnames(states) = c("LocationDesc", "state.id")
- obesity = merge(obesity, states, by = "LocationDesc")
-
-J <- gvisMotionChart(obesity, idvar="DavaValue", timevar="YearStart",
+adult.ob = adult.ob[,1:4]
+adult.ob$id = seq.int(nrow(adult.ob))
+J <- gvisMotionChart(adult.ob, idvar="states", timevar="year", xvar="leisure", yvar="obesity",
                      options=list(width=700, height=600))
 
 plot(J)
