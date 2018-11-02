@@ -341,15 +341,11 @@ n = as.data.frame(table(nutri$Question))
 
 
 ### shiny
-## reference: https://shiny.rstudio.com/articles/plot-interaction-advanced.html
-
-
-
-
-
-
-
-
+## reference:
+# 1. https://shiny.rstudio.com/articles/plot-interaction-advanced.html
+# 2. https://shiny.rstudio.com/reference/shiny/0.14/shinyApp.html
+# 3. https://shiny.rstudio.com/articles/html-tags.html
+# 4. https://magesblog.com/post/2013-02-26-first-steps-of-using-googlevis-on-shiny/
 
 
 
