@@ -44,7 +44,7 @@ filtered.states = state.name
 # control variable
 # filtered.states = c("California", "Alabama", "New York", "Florida", "Texas", "Mississippi", "West Virginia")
 filtered.six.year = c(2011:2016)
-filtered.year = c(2011, 2013, 2015)
+#filtered.year = c(2011, 2013, 2015)
 
 # obesity - getting obesity stats
 obesity = chron.dis %>%
@@ -102,7 +102,7 @@ hs = chron.dis %>%
   select(-one_of(c("YearEnd"))) %>%
   filter( str_detect(Question, "High school completion among adults aged 18-24 years")) %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
-  #  filter( LocationDesc %in% filtered.states) %>%
+  filter( LocationDesc %in% filtered.states) %>%
   filter( YearStart %in% filtered.six.year)
 
 # high school - plot
@@ -192,8 +192,17 @@ colnames(adult.ob) = c("states", "year", "obesity", "leisure", "poverty","hs.gra
 str(adult.ob)
 
 # doing the linear for adult obesity
-lin.fit = lm(obesity ~. -year-states, data = adult.ob) # Mississippi, West Virginia, Alabama
+# lin.fit = lm(obesity ~. -diabetes-year-states-vegetable, data = adult.ob) 
+# summary(lin.fit)
+
+lin.fit = lm(filter(obesity, YearStart %in% 2016) ~. -diabetes-year-states-vegetable, data = adult.ob) 
 summary(lin.fit)
+
+# tfe1=plm(obesity~leisure+poverty+hs.grad+diabetes+vegetable+fitness, index=c("states","year"), model="within", data = adult.ob)
+# summary(tfe1)
+# tfe2=plm(obesity~leisure+poverty+hs.grad+diabetes+factor(year), index=c("states","year"), model="within", data = adult.ob)
+# summary(tfe2)
+# pFtest(tfe1,lin.fit)
 
 
 # Google Vis plot - added
@@ -209,10 +218,13 @@ obesity$DataValue = sc[,1]
 
 ### MAPPING / GRAPHING
 str(obesity)
-G1 = gvisGeoChart(filter(obesity, YearStart %in% 2016), 
+G1 = gvisGeoChart(filter(obesity, YearStart %in% 2015), 
                   locationvar = "LocationDesc", 
                   colorvar = "DataValue",
-                  options=list(region="US", 
+                  options=list(title="Obesity",
+                               titleTextStyle="{color:'red',fontName:'Courier',fontSize:16}",
+                               curveType='function',
+                               region="US", 
                                displayMode="regions", 
                                resolution="provinces",
                                width=800, height=600))
