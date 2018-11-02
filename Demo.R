@@ -7,12 +7,16 @@ setwd("/Users/munchbook/Desktop/Cindy Class")
 #install.packages("maps")
 #install.packages("ggplot2") 
 #install.packages("googleVis")
+#install.packages("shinydashboard")
+library(shinydashboard)
 library(ggplot2)
 library(maps)
 library(dplyr)
 library(stringr)
 library(googleVis)
 library(readxl)
+library(shiny)
+library(datasets)
 
 # THIS IS FOR OBESITY OVER 18
 
@@ -205,88 +209,111 @@ summary(lin.fit)
 # pFtest(tfe1,lin.fit)
 
 
-# Google Vis plot - added
-library(datasets)
+########## Google Vis plot & Shiny - added
+# filtering again for mappin
+obs = filter(obesity, YearStart %in% 2015)
+lei = filter(leisure, YearStart %in% 2015)
+pov = filter(poverty, YearStart %in% 2015)
+hs.grad = filter(hs, YearStart %in% 2015)
+dia = filter(diabetes, YearStart %in% 2015)
 
-# standaradizing obesity for the map
-mean(obesity$DataValue)
-sd(obesity$DataValue)
-?sd
 
-sc = scale(obesity$DataValue) # trying to get a standardized measurement
-obesity$DataValue = sc[,1]
+# obesity
+G1 = gvisGeoChart(obs,
+             locationvar = "LocationDesc", 
+             colorvar = "DataValue",
+             options=list(region="US", 
+                          displayMode="regions", 
+                          resolution="provinces",
+                          width=800, height=600))
 
-### MAPPING / GRAPHING
-str(obesity)
-G1 = gvisGeoChart(filter(obesity, YearStart %in% 2015), 
+# leisure
+G2 = gvisGeoChart(lei, 
                   locationvar = "LocationDesc", 
                   colorvar = "DataValue",
-                  options=list(title="Obesity",
-                               titleTextStyle="{color:'red',fontName:'Courier',fontSize:16}",
-                               curveType='function',
+                  options=list(title = "Leisure",
                                region="US", 
                                displayMode="regions", 
                                resolution="provinces",
                                width=800, height=600))
-plot(G1)
 
-
-str(leisure)
-# leisure
-G2 = gvisGeoChart(filter(leisure, YearStart %in% 2016), 
-                  locationvar = "LocationDesc", 
-                  colorvar = "DataValue",
-                  options=list(region="US", 
-                               displayMode="regions", 
-                               resolution="provinces",
-                               width=800, height=600))
-plot(G2)
-
-str(poverty)
 # poverty
-G3 = gvisGeoChart(filter(poverty, YearStart %in% 2016), 
+G3 = gvisGeoChart(pov, 
                   locationvar = "LocationDesc", 
                   colorvar = "DataValue",
-                  options=list(region="US", 
+                  options=list(title = "Leisure",
+                               region="US", 
                                displayMode="regions", 
                                resolution="provinces",
                                width=800, height=600))
-plot(G3)
 
-str(hs)
 # hs
-G4 = gvisGeoChart(filter(hs, YearStart %in% 2016), 
+G4 = gvisGeoChart(hs.grad, 
                   locationvar = "LocationDesc", 
                   colorvar = "DataValue",
                   options=list(region="US", 
                                displayMode="regions", 
                                resolution="provinces",
                                width=800, height=600))
-plot(G4)
 
-str(diabetes)
 # diabetes
-G5 = gvisGeoChart(filter(diabetes, YearStart %in% 2016), 
+G5 = gvisGeoChart(dia, 
                   locationvar = "LocationDesc", 
                   colorvar = "DataValue",
                   options=list(region="US", 
                                displayMode="regions", 
                                resolution="provinces",
                                width=800, height=600))
-plot(G5)
 
-
-
-
-### TO DO: MAKE INTERACTIVE DYNAMIC GRAPH - ATTEMPT
-
-# Google Vis plot - added
-
-#adult.ob$id = seq.int(nrow(adult.ob))
-J <- gvisMotionChart(adult.ob, idvar="states", timevar="year", xvar="leisure", yvar="obesity",
+J = gvisMotionChart(adult.ob, idvar="states", timevar="year", xvar = "hs.grad", yvar="obesity",
                      options=list(width=700, height=600))
 
-plot(J)
+
+# Shiny App
+dashHead = dashboardHeader(title = "Menu")
+sideBar = dashboardSidebar()
+dashBoard = dashboardBody(
+  h2("Obesity"),
+    htmlOutput("obesity"),
+  h2("Leisure"),
+    htmlOutput("leisure"),
+  h2("Poverty"),
+    htmlOutput("poverty"),
+  h2("Over 18 High School Graduates"),
+    htmlOutput("high"),
+  h2("Diabetes"),
+    htmlOutput("dia"),
+  h2("Motion Chart: Obesity vs ..."),
+    htmlOutput("adultOb")
+)
+
+ui <- dashboardPage(dashHead,sideBar, dashBoard)
+
+server = function(input, output) {
+  
+  output$obesity <- renderGvis({
+    map <- G1
+  })
+  output$leisure <- renderGvis({
+    map <- G2
+  })
+  output$poverty <- renderGvis({
+    map <- G3
+  })
+  output$high <- renderGvis({
+    map <- G4
+  })
+  output$dia <- renderGvis({
+    map <- G5
+  })
+  output$adultOb <- renderGvis({
+    map <- J
+  })
+}
+
+shinyApp(ui, server)
+
+
 
 
 
