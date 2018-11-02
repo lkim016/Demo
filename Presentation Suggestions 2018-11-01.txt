@@ -1,0 +1,26 @@
+Suggestions:
+- Variables
+	- Change leisure to inactivity
+	- Drop vegetable
+	- Calculate chci from new files to get 2011-2016
+	- Drop high school and add chci
+- Line graph
+	- Run selected states for line graph
+- Regression
+	- Run all 50 states for regression calculation
+	- Continue with linear regression, don't use time
+	- Linear regression filter by year when running results (2016)
+- US map
+	- Change US graph to red/blue or red
+- Dynamic Graph
+	- Run through a few times and find a good story to explain
+
+
+
+Suggestions for presentation:
+0a) Where data is from
+0b) What are we trying to accomplish
+1) Start with US map for all 50 states. 2 graphs - one for 2011 and 2016
+2) Show line charts with the 7 states
+3) Dynamic chart and explain results/ tell story
+4) Linear regression results. Show statistically significant results. If not, then say something like it's not statistically significant BUT.....
