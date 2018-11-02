@@ -220,6 +220,7 @@ G1 = gvisGeoChart(obs11,
                   options=list(region="US", 
                                displayMode="regions", 
                                resolution="provinces",
+                               colorAxis="{colors:[\'#87CEEB\', \'#BE2625\']}",
                                width=800, height=600))
 
 G2 = gvisGeoChart(obs16,
