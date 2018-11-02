@@ -21,7 +21,7 @@ library(datasets)
 # THIS IS FOR OBESITY OVER 18
 
 # variables for data files
-gusa = map_data("state") # graphical map
+#gusa = map_data("state") # graphical map
 chron.dis = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv", stringsAsFactors = FALSE)
 nutri = read.csv("Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
 
@@ -169,15 +169,14 @@ ggplot(data=fitness, aes(x=YearStart, y=DataValue, group=LocationDesc, colour=Lo
 
 
 # clean up data more LocationDesc, YearStart, DataValue for adult obesity
-obesity = obesity %>% filter( YearStart %in% (filtered.year))
 
 obesity = obesity %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 leisure = leisure %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 poverty = poverty %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 hs = hs %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 diabetes = diabetes %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
-vegetable = vegetable %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
-fitness = fitness %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+#vegetable = vegetable %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+#fitness = fitness %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 
 # merged adult data
 colmerge = c("LocationDesc", "YearStart")
@@ -186,14 +185,13 @@ adult.ob = left_join(obesity, leisure, by = colmerge)
 adult.ob = left_join(adult.ob, poverty, by = colmerge)
 adult.ob = left_join(adult.ob, diabetes, by = colmerge)
 adult.ob = left_join(adult.ob, hs, by = colmerge)
-adult.ob = left_join(adult.ob, vegetable, by = colmerge)
-adult.ob = left_join(adult.ob, fitness, by = colmerge)
+#adult.ob = left_join(adult.ob, vegetable, by = colmerge)
+#adult.ob = left_join(adult.ob, fitness, by = colmerge)
 
 
 # renaming columns for adultobesity
-colnames(adult.ob) = c("states", "year", "obesity", "leisure", "poverty","hs.grad","diabetes","vegetable","fitness")
-#colnames(adult.ob) = c("states", "year", "obesity", "leisure", "poverty","hs.grad","diabetes")
-str(adult.ob)
+#colnames(adult.ob) = c("state", "year", "obesity", "leisure", "poverty","hs.grad","diabetes","vegetable","fitness")
+colnames(adult.ob) = c("state", "year", "obesity", "leisure", "poverty","hs.grad","diabetes")
 
 # doing the linear for adult obesity
 # lin.fit = lm(obesity ~. -diabetes-year-states-vegetable, data = adult.ob) 
@@ -211,78 +209,40 @@ summary(lin.fit)
 
 ########## Google Vis plot & Shiny - added
 # filtering again for mappin
-obs = filter(obesity, YearStart %in% 2015)
-lei = filter(leisure, YearStart %in% 2015)
-pov = filter(poverty, YearStart %in% 2015)
-hs.grad = filter(hs, YearStart %in% 2015)
-dia = filter(diabetes, YearStart %in% 2015)
+obs11 = filter(adult.ob, year %in% 2011)
+obs16 = filter(adult.ob, year %in% 2016)
 
 
 # obesity
-G1 = gvisGeoChart(obs,
-             locationvar = "LocationDesc", 
-             colorvar = "DataValue",
-             options=list(region="US", 
-                          displayMode="regions", 
-                          resolution="provinces",
-                          width=800, height=600))
-
-# leisure
-G2 = gvisGeoChart(lei, 
-                  locationvar = "LocationDesc", 
-                  colorvar = "DataValue",
-                  options=list(title = "Leisure",
-                               region="US", 
-                               displayMode="regions", 
-                               resolution="provinces",
-                               width=800, height=600))
-
-# poverty
-G3 = gvisGeoChart(pov, 
-                  locationvar = "LocationDesc", 
-                  colorvar = "DataValue",
-                  options=list(title = "Leisure",
-                               region="US", 
-                               displayMode="regions", 
-                               resolution="provinces",
-                               width=800, height=600))
-
-# hs
-G4 = gvisGeoChart(hs.grad, 
-                  locationvar = "LocationDesc", 
-                  colorvar = "DataValue",
+G1 = gvisGeoChart(obs11,
+                  locationvar = "state", 
+                  colorvar = "obesity",
                   options=list(region="US", 
                                displayMode="regions", 
                                resolution="provinces",
                                width=800, height=600))
 
-# diabetes
-G5 = gvisGeoChart(dia, 
-                  locationvar = "LocationDesc", 
-                  colorvar = "DataValue",
+G2 = gvisGeoChart(obs16,
+                  locationvar = "state", 
+                  colorvar = "obesity",
                   options=list(region="US", 
                                displayMode="regions", 
                                resolution="provinces",
                                width=800, height=600))
 
-J = gvisMotionChart(adult.ob, idvar="states", timevar="year", xvar = "hs.grad", yvar="obesity",
-                     options=list(width=700, height=600))
+
+J = gvisMotionChart(adult.ob, idvar="state", timevar="year", xvar = "hs.grad", yvar="obesity",
+                    options=list(width=700, height=600))
 
 
 # Shiny App
 dashHead = dashboardHeader(title = "Menu")
 sideBar = dashboardSidebar()
 dashBoard = dashboardBody(
-  h2("Obesity"),
-    htmlOutput("obesity"),
-  h2("Leisure"),
-    htmlOutput("leisure"),
-  h2("Poverty"),
-    htmlOutput("poverty"),
-  h2("Over 18 High School Graduates"),
-    htmlOutput("high"),
-  h2("Diabetes"),
-    htmlOutput("dia"),
+  h2("Obesity in 2011"),
+    htmlOutput("obesity11"),
+  h2("Obesity in 2016"),
+    htmlOutput("obesity16"),
   h2("Motion Chart: Obesity vs ..."),
     htmlOutput("adultOb")
 )
@@ -291,20 +251,11 @@ ui <- dashboardPage(dashHead,sideBar, dashBoard)
 
 server = function(input, output) {
   
-  output$obesity <- renderGvis({
+  output$obesity11 <- renderGvis({
     map <- G1
   })
-  output$leisure <- renderGvis({
+  output$obesity16 <- renderGvis({
     map <- G2
-  })
-  output$poverty <- renderGvis({
-    map <- G3
-  })
-  output$high <- renderGvis({
-    map <- G4
-  })
-  output$dia <- renderGvis({
-    map <- G5
   })
   output$adultOb <- renderGvis({
     map <- J
@@ -312,9 +263,6 @@ server = function(input, output) {
 }
 
 shinyApp(ui, server)
-
-
-
 
 
 ### TO DO: MAKE INTERACTIVE DYNAMIC GRAPH
@@ -338,7 +286,7 @@ fil2 = as.data.frame(table(fil))
 #### important variables = YearStart, LocationDesc, Data_Value
 n = as.data.frame(table(nutri$Question))
 
-
+ques = as.data.frame(table(chron.dis))
 
 ### shiny
 ## reference:
@@ -346,7 +294,6 @@ n = as.data.frame(table(nutri$Question))
 # 2. https://shiny.rstudio.com/reference/shiny/0.14/shinyApp.html
 # 3. https://shiny.rstudio.com/articles/html-tags.html
 # 4. https://magesblog.com/post/2013-02-26-first-steps-of-using-googlevis-on-shiny/
-
 
 
 
