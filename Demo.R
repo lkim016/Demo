@@ -24,7 +24,6 @@ library(datasets)
 #gusa = map_data("state") # graphical map
 chron.dis = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv", stringsAsFactors = FALSE)
 nutri = read.csv("Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
-gym = read.csv("open-gym.csv")
 
 # changing data values to numeric and colnames
 chron.dis$DataValue = as.numeric(chron.dis$DataValue)
