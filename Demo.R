@@ -29,6 +29,48 @@ nutri = read.csv("Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Fa
 chron.dis$DataValue = as.numeric(chron.dis$DataValue)
 nutri$Data_Value = as.numeric(nutri$Data_Value)
 names(nutri)[11] = "DataValue" # changing nutri file Data_Value to Datavalue
+
+# DATASETS - FAST FOOD - 2014
+# https://www.ers.usda.gov/data-products/food-environment-atlas/data-access-and-documentation-downloads/
+fastfoodtemp = read_excel("DataDownload.xlsx", sheet = "RESTAURANTS")
+fastfoodtemp = fastfoodtemp[,c(2,4,5)]
+colnames(fastfoodtemp) = c("state", "ff09","ff14")
+# getting the sum of each state by year
+fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
+#merge
+fastfood = fastfoodtemp[, c("state", "ff14")]
+fastfood$year = 2014
+colnames(fastfood) = c("state", "dataValue","year")
+
+# DATASETS - FAST FOOD - 2011
+# https://www.ers.usda.gov/data-products/food-environment-atlas/data-access-and-documentation-downloads/
+fastfoodtemp = read_excel("February2014.xlsx", sheet = "RESTAURANTS")
+fastfoodtemp = fastfoodtemp[,c(2,4,5)]
+colnames(fastfoodtemp) = c("state", "ff07","ff11")
+# getting the sum of each state by year
+fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
+#merge
+fastfoodtemp = fastfoodtemp[, c("state", "ff11")]
+fastfoodtemp$year = 2011
+colnames(fastfoodtemp) = c("state", "dataValue","year")
+# DATASETS - FAST FOOD - merge
+fastfood = rbind(fastfood, fastfoodtemp)
+
+# DATASETS - FAST FOOD - 2012
+# https://www.ers.usda.gov/data-products/food-environment-atlas/data-access-and-documentation-downloads/
+fastfoodtemp = read_excel("August2015.xlsx", sheet = "RESTAURANTS")
+fastfoodtemp = fastfoodtemp[,c(2,4,5)]
+colnames(fastfoodtemp) = c("state", "ff07","ff12")
+# getting the sum of each state by year
+fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
+#merge
+fastfoodtemp = fastfoodtemp[, c("state", "ff12")]
+fastfoodtemp$year = 2012
+colnames(fastfoodtemp) = c("state", "dataValue","year")
+# DATASETS - FAST FOOD - merge
+fastfood = rbind(fastfood, fastfoodtemp)
+
+# ChCI
 chci = read_excel("CHCI_state.xlsx", skip = 1)
 chci = chci[, c("Geography", "2011", "2012", "2013")]
 colnames(chci) = c("state", "y2011", "y2012", "y2013")
@@ -153,13 +195,30 @@ ggplot(data=filter(chci2, LocationDesc %in% filtered.states.selected), aes(x=Yea
   ylab("") + 
   ggtitle("CHCI")
 
-# clean up data more LocationDesc, YearStart, DataValue for adult obesity
+str(state.abb)
 
+# fast food - data cleanup
+fastfood$states = state.name[match(fastfood$state,state.abb)]
+fastfood = fastfood %>%
+  filter( states %in% filtered.states.full) %>%
+  filter( year %in% filtered.six.year)
+fastfood = fastfood %>% select(one_of(c("states", "year", "dataValue")))
+
+# fast food - plot
+ggplot(data=filter(fastfood, states %in% filtered.states.selected), aes(x=year, y=dataValue, group=states, colour=states)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Counts") + 
+  ggtitle("Fast Food Restaurant")
+
+# clean up data more LocationDesc, YearStart, DataValue for adult obesity
 obesity = obesity %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 inactivity = inactivity %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 poverty = poverty %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 diabetes = diabetes %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 #fitness = fitness %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
+colnames(fastfood) = c("LocationDesc", "YearStart", "DataValue")
 
 # merged adult data
 colmerge = c("LocationDesc", "YearStart")
@@ -168,17 +227,17 @@ adult.ob = left_join(obesity, inactivity, by = colmerge)
 adult.ob = left_join(adult.ob, poverty, by = colmerge)
 adult.ob = left_join(adult.ob, diabetes, by = colmerge)
 adult.ob = left_join(adult.ob, chci2, by = colmerge)
+adult.ob = left_join(adult.ob, fastfood, by = colmerge)
 #adult.ob = left_join(adult.ob, fitness, by = colmerge)
 
 # renaming columns for adultobesity
-colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","diabetes", "chci")
+colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","diabetes", "chci", "fastfood")
 
-
-# Linear Regression - 2013 has stat significance
+# Linear Regression
 adult.ob2 = filter(filter(adult.ob, year %in% 2013), state %in% filtered.states.selected)
-adult.ob2 = filter(adult.ob, year %in% 2013)
+adult.ob2 = filter(adult.ob, year %in% 2012)
 #lin.fit = lm(obesity~. -diabetes-year-state, data = adult.ob2) 
-lin.fit = lm(obesity~inactivity+poverty+chci, data = adult.ob2) 
+lin.fit = lm(obesity~inactivity+poverty+chci+fastfood, data = adult.ob2) 
 summary(lin.fit)
 
 ########## Google Vis plot & Shiny - added
@@ -258,18 +317,3 @@ shinyApp(ui, server)
 # 2. https://shiny.rstudio.com/reference/shiny/0.14/shinyApp.html
 # 3. https://shiny.rstudio.com/articles/html-tags.html
 # 4. https://magesblog.com/post/2013-02-26-first-steps-of-using-googlevis-on-shiny/
-
-
-
-
-# FAST FOOD
-res = read_excel("DataDownload.xls", sheet = "RESTAURANTS")
-res = health[,c(2,4,5)]
-colnames(health) = c("state", "ff09","ff14")
-
-# getting the sum of each state by year
-res = res %>% group_by(state) %>% summarise_each(funs(sum))
-
-
-# DATASETS
-# https://www.ers.usda.gov/data-products/food-environment-atlas/data-access-and-documentation-downloads/
