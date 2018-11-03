@@ -1,7 +1,7 @@
 Suggestions:
 - Variables
-	- Change leisure to inactivity
-	- Drop vegetable
+	- Change leisure to inactivity (done)
+	- Drop vegetable (done)
 	- Calculate chci from new files to get 2011-2016
 	- Drop high school and add chci
 - Line graph
@@ -11,7 +11,7 @@ Suggestions:
 	- Continue with linear regression, don't use time
 	- Linear regression filter by year when running results (2016)
 - US map
-	- Change US graph to red/blue or red
+	- Change US graph to red/blue or red (done)
 - Dynamic Graph
 	- Run through a few times and find a good story to explain
 
@@ -23,4 +23,4 @@ Suggestions for presentation:
 1) Start with US map for all 50 states. 2 graphs - one for 2011 and 2016
 2) Show line charts with the 7 states
 3) Dynamic chart and explain results/ tell story
-4) Linear regression results. Show statistically significant results. If not, then say something like it's not statistically significant BUT.....
+4) Linear regression results. Show statistically significant results. If not stat sig, then say something like it's not statistically significant BUT.....
