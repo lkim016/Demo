@@ -30,6 +30,7 @@ chron.dis$DataValue = as.numeric(chron.dis$DataValue)
 nutri$Data_Value = as.numeric(nutri$Data_Value)
 names(nutri)[11] = "DataValue" # changing nutri file Data_Value to Datavalue
 chci = read_excel("CHCI_state.xlsx", skip = 1)
+chci = chci[, c("Geography", "2011", "2012", "2013")]
 colnames(chci) = c("state", "y2011", "y2012", "y2013")
 # 2011
 chcitemp = chci[, c("state", "y2011")]
@@ -47,20 +48,9 @@ chcitemp = cbind(chcitemp, rep(2013, nrow(chcitemp)))
 colnames(chcitemp) = c("LocationDesc", "chci", "YearStart")
 chci2 = rbind(chci2,chcitemp)
 
-
-
-n <- chci$geography
-
-# transpose all but the first column (name)
-df.aree <- as.data.frame(t(df.aree[,-1]))
-colnames(df.aree) <- n
-df.aree$myfactor <- factor(row.names(df.aree))
-
-str(df.aree) # Check the column types
-
 # States control variable
 filtered.states.full = state.name
-filtered.states.selected = c("Mississippi", "West Virginia", "Arkansas", "North Dakota","South Carolina","Arizona")
+filtered.states.selected = c("Colorado", "Mississippi", "West Virginia", "Arkansas", "North Dakota","South Carolina","Arizona")
 
 # Year control variable
 filtered.six.year = c(2011:2016)
@@ -150,6 +140,18 @@ ggplot(data=filter(fitness, LocationDesc %in% filtered.states.selected), aes(x=Y
   ylab("Percent") + 
   ggtitle("5 hrs/wk moderate-intense aerobic...")
 
+# chci - filter
+chci2 = chci2 %>%
+  filter( LocationDesc %in% filtered.states.full) %>%
+  filter( YearStart %in% filtered.six.year)
+
+# chci - plot
+ggplot(data=filter(chci2, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=chci, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("") + 
+  ggtitle("CHCI")
 
 # clean up data more LocationDesc, YearStart, DataValue for adult obesity
 
@@ -167,7 +169,6 @@ adult.ob = left_join(adult.ob, poverty, by = colmerge)
 adult.ob = left_join(adult.ob, diabetes, by = colmerge)
 adult.ob = left_join(adult.ob, chci2, by = colmerge)
 #adult.ob = left_join(adult.ob, fitness, by = colmerge)
-
 
 # renaming columns for adultobesity
 colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","diabetes", "chci")
@@ -199,11 +200,14 @@ G2 = gvisGeoChart(filter(adult.ob, year %in% 2016),
                                resolution="provinces",
                                colorAxis="{colors:[\'#87CEEB\', \'#BE2625\']}",
                                width=800, height=600))
+plot(G1)
+print(G2, "US map.html")
 
 
 J = gvisMotionChart(adult.ob, idvar="state", timevar="year", xvar = "inactivity", yvar="obesity",
                     options=list(width=700, height=600))
 
+plot(J)
 
 # Shiny App
 dashHead = dashboardHeader(title = "Menu")
@@ -242,9 +246,6 @@ server = function(input, output) {
   output$adultOb <- renderGvis({
     map <- J
   })
-  # output$lm <- textOutput({
-  #   o <- summary(lin.fit)
-  # })
 }
 
 shinyApp(ui, server)
