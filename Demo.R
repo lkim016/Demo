@@ -29,11 +29,38 @@ nutri = read.csv("Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Fa
 chron.dis$DataValue = as.numeric(chron.dis$DataValue)
 nutri$Data_Value = as.numeric(nutri$Data_Value)
 names(nutri)[11] = "DataValue" # changing nutri file Data_Value to Datavalue
-# chci = read_excel("CHCI_state.xlsx", skip = 1)
+chci = read_excel("CHCI_state.xlsx", skip = 1)
+colnames(chci) = c("state", "y2011", "y2012", "y2013")
+# 2011
+chcitemp = chci[, c("state", "y2011")]
+chcitemp = cbind(chcitemp, rep(2011, nrow(chcitemp)))
+colnames(chcitemp) = c("LocationDesc", "chci", "YearStart")
+chci2 = chcitemp
+# 2012
+chcitemp = chci[, c("state", "y2012")]
+chcitemp = cbind(chcitemp, rep(2012, nrow(chcitemp)))
+colnames(chcitemp) = c("LocationDesc", "chci", "YearStart")
+chci2 = rbind(chci2,chcitemp)
+# 2013
+chcitemp = chci[, c("state", "y2013")]
+chcitemp = cbind(chcitemp, rep(2013, nrow(chcitemp)))
+colnames(chcitemp) = c("LocationDesc", "chci", "YearStart")
+chci2 = rbind(chci2,chcitemp)
+
+
+
+n <- chci$geography
+
+# transpose all but the first column (name)
+df.aree <- as.data.frame(t(df.aree[,-1]))
+colnames(df.aree) <- n
+df.aree$myfactor <- factor(row.names(df.aree))
+
+str(df.aree) # Check the column types
 
 # States control variable
 filtered.states.full = state.name
-filtered.states.selected = c("California", "Alabama", "New York", "Florida", "Texas", "Mississippi", "West Virginia")
+filtered.states.selected = c("Mississippi", "West Virginia", "Arkansas", "North Dakota","South Carolina","Arizona")
 
 # Year control variable
 filtered.six.year = c(2011:2016)
@@ -49,7 +76,7 @@ obesity = chron.dis %>%
   filter( YearStart %in% (filtered.six.year))
 
 # obesity - plot
-ggplot(data=filter(obesity, "LocationDesc" %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+ggplot(data=filter(obesity, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
   xlab("Years") +
@@ -90,23 +117,6 @@ ggplot(data=filter(poverty, LocationDesc %in% filtered.states.selected), aes(x=Y
   ylab("Percent") + 
   ggtitle("poverty")
 
-# hs - getting hs stats
-hs = chron.dis %>%
-  select(-one_of(c("YearEnd"))) %>%
-  filter( str_detect(Question, "High school completion among adults aged 18-24 years")) %>%
-  filter(str_detect(Stratification1, "Overall" )) %>%
-  filter( LocationDesc %in% filtered.states.full) %>%
-  filter( YearStart %in% filtered.six.year)
-
-# high school - plot
-ggplot(data=filter(hs, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
-  geom_line() +
-  geom_point() +
-  xlab("Years") +
-  ylab("Percent") + 
-  ggtitle("High School Completion")
-
-
 # adults with diabetes - adult diabetes stats
 diabetes = chron.dis %>%
   select(-one_of(c("YearEnd"))) %>%
@@ -146,7 +156,6 @@ ggplot(data=filter(fitness, LocationDesc %in% filtered.states.selected), aes(x=Y
 obesity = obesity %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 inactivity = inactivity %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 poverty = poverty %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
-hs = hs %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 diabetes = diabetes %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 #fitness = fitness %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
 
@@ -156,15 +165,19 @@ colmerge = c("LocationDesc", "YearStart")
 adult.ob = left_join(obesity, inactivity, by = colmerge)
 adult.ob = left_join(adult.ob, poverty, by = colmerge)
 adult.ob = left_join(adult.ob, diabetes, by = colmerge)
-adult.ob = left_join(adult.ob, hs, by = colmerge)
+adult.ob = left_join(adult.ob, chci2, by = colmerge)
 #adult.ob = left_join(adult.ob, fitness, by = colmerge)
 
 
 # renaming columns for adultobesity
-colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","hs.grad","diabetes")
+colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","diabetes", "chci")
+
 
 # Linear Regression - 2013 has stat significance
-lin.fit = lm(obesity~. -diabetes-year-state, data = filter(adult.ob, year %in% 2013)) 
+adult.ob2 = filter(filter(adult.ob, year %in% 2013), state %in% filtered.states.selected)
+adult.ob2 = filter(adult.ob, year %in% 2013)
+#lin.fit = lm(obesity~. -diabetes-year-state, data = adult.ob2) 
+lin.fit = lm(obesity~inactivity+poverty+chci, data = adult.ob2) 
 summary(lin.fit)
 
 ########## Google Vis plot & Shiny - added
@@ -237,28 +250,6 @@ server = function(input, output) {
 shinyApp(ui, server)
 
 
-### TO DO: MAKE INTERACTIVE DYNAMIC GRAPH
-
-hist(adult.ob$obesity.over.18)
-hist(adult.ob$inactivity)
-hist(adult.ob$poverty)
-hist(adult.ob$over.18.hs.grad)
-
-ques = as.data.frame(table(nutri$Question))
-ques1 = as.data.frame(table(chron.dis$Question))
-
-#### filtering code
-topic = as.data.frame(table(chron.dis$Topic))
-question = as.data.frame(table(chron.dis$Question))
-
-fil = nutri %>%
-  filter(str_detect(Question, "adults who engage in muscle-strengthening activities"))
-fil2 = as.data.frame(table(fil))
-
-#### important variables = YearStart, LocationDesc, Data_Value
-n = as.data.frame(table(nutri$Question))
-
-ques = as.data.frame(table(chron.dis))
 
 ### shiny
 ## reference:
