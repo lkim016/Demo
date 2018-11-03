@@ -24,6 +24,7 @@ library(datasets)
 #gusa = map_data("state") # graphical map
 chron.dis = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv", stringsAsFactors = FALSE)
 nutri = read.csv("Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
+gym = read.csv("open-gym.csv")
 
 # changing data values to numeric and colnames
 chron.dis$DataValue = as.numeric(chron.dis$DataValue)
@@ -231,12 +232,12 @@ server = function(input, output) {
   })
   output$obesityline <- renderPlot({ 
     reactive({
-    map <- ggplot(data=filter(obesity, "LocationDesc" %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
-      geom_line() +
-      geom_point() +
-      xlab("Years") +
-      ylab("Percent") + 
-      ggtitle("Obesity over the Years")
+      map <- ggplot(data=filter(obesity, "LocationDesc" %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+        geom_line() +
+        geom_point() +
+        xlab("Years") +
+        ylab("Percent") + 
+        ggtitle("Obesity over the Years")
     })
   })
   output$adultOb <- renderGvis({
@@ -257,3 +258,18 @@ shinyApp(ui, server)
 # 2. https://shiny.rstudio.com/reference/shiny/0.14/shinyApp.html
 # 3. https://shiny.rstudio.com/articles/html-tags.html
 # 4. https://magesblog.com/post/2013-02-26-first-steps-of-using-googlevis-on-shiny/
+
+
+
+
+# FAST FOOD
+res = read_excel("DataDownload.xls", sheet = "RESTAURANTS")
+res = health[,c(2,4,5)]
+colnames(health) = c("state", "ff09","ff14")
+
+# getting the sum of each state by year
+res = res %>% group_by(state) %>% summarise_each(funs(sum))
+
+
+# DATASETS
+# https://www.ers.usda.gov/data-products/food-environment-atlas/data-access-and-documentation-downloads/
