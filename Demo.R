@@ -17,6 +17,7 @@ library(googleVis)
 library(readxl)
 library(shiny)
 library(datasets)
+library(plm)
 
 # THIS IS FOR OBESITY OVER 18
 
@@ -195,8 +196,6 @@ ggplot(data=filter(chci2, LocationDesc %in% filtered.states.selected), aes(x=Yea
   ylab("") + 
   ggtitle("CHCI")
 
-str(state.abb)
-
 # fast food - data cleanup
 fastfood$states = state.name[match(fastfood$state,state.abb)]
 fastfood = fastfood %>%
@@ -205,7 +204,7 @@ fastfood = fastfood %>%
 fastfood = fastfood %>% select(one_of(c("states", "year", "dataValue")))
 
 # fast food - plot
-ggplot(data=filter(fastfood, states %in% filtered.states.selected), aes(x=year, y=dataValue, group=states, colour=states)) +
+ggplot(data=fastfood, aes(x=year, y=dataValue, group=states, colour=states)) +
   geom_line() +
   geom_point() +
   xlab("Years") +
@@ -231,14 +230,22 @@ adult.ob = left_join(adult.ob, fastfood, by = colmerge)
 #adult.ob = left_join(adult.ob, fitness, by = colmerge)
 
 # renaming columns for adultobesity
-colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","diabetes", "chci", "fastfood")
 
+colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","diabetes", "chci", "fastfood")
 # Linear Regression
-adult.ob2 = filter(filter(adult.ob, year %in% 2013), state %in% filtered.states.selected)
-adult.ob2 = filter(adult.ob, year %in% 2012)
+adult.ob2 = filter(filter(adult.ob, year %in% 2012), state %in% filtered.states.selected)
+adult.ob2 = filter(adult.ob, year %in% 2014)
+adult.ob2 = adult.ob
 #lin.fit = lm(obesity~. -diabetes-year-state, data = adult.ob2) 
-lin.fit = lm(obesity~inactivity+poverty+chci+fastfood, data = adult.ob2) 
+lin.fit = lm(obesity~inactivity+poverty+chci+fastfood^2+diabetes, data = adult.ob2) 
+lin.fit = lm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, data = adult.ob2) 
 summary(lin.fit)
+
+sols=lm(obesity~inactivity+poverty+chci+fastfood, data=adult.ob2)
+summary(ols)
+tfe1=plm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, index=c("state","year"), model="within", data=adult.ob2)
+summary(tfe1)
+
 
 ########## Google Vis plot & Shiny - added
 # obesity
