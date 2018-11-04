@@ -27,6 +27,7 @@ chron.dis = read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv", stringsAsFacto
 nutri = read.csv("Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
 
 # changing data values to numeric and colnames
+# https://catalog.data.gov/dataset/u-s-chronic-disease-indicators-cdi
 chron.dis$DataValue = as.numeric(chron.dis$DataValue)
 nutri$Data_Value = as.numeric(nutri$Data_Value)
 names(nutri)[11] = "DataValue" # changing nutri file Data_Value to Datavalue
@@ -324,3 +325,4 @@ shinyApp(ui, server)
 # 2. https://shiny.rstudio.com/reference/shiny/0.14/shinyApp.html
 # 3. https://shiny.rstudio.com/articles/html-tags.html
 # 4. https://magesblog.com/post/2013-02-26-first-steps-of-using-googlevis-on-shiny/
+
