@@ -38,7 +38,7 @@ fastfoodtemp = read_excel("DataDownload.xlsx", sheet = "RESTAURANTS")
 fastfoodtemp = fastfoodtemp[,c(2,4,5)]
 colnames(fastfoodtemp) = c("state", "ff09","ff14")
 # getting the sum of each state by year
-#fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
+fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
 
 #merge
 fastfood = fastfoodtemp[, c("state", "ff14")]
@@ -51,7 +51,7 @@ fastfoodtemp = read_excel("February2014.xlsx", sheet = "RESTAURANTS")
 fastfoodtemp = fastfoodtemp[,c(2,4,5)]
 colnames(fastfoodtemp) = c("state", "ff07","ff11")
 # getting the sum of each state by year
-# fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
+fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
 #merge
 fastfoodtemp = fastfoodtemp[, c("state", "ff11")]
 fastfoodtemp$year = 2011
@@ -235,24 +235,24 @@ adult.ob = left_join(adult.ob, fastfood, by = colmerge)
 
 colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","diabetes", "chci", "fastfood")
 # Linear Regression
-adult.ob2 = filter(filter(adult.ob, year %in% 2012), state %in% filtered.states.selected)
-adult.ob2 = filter(adult.ob, year %in% 2014)
-adult.ob2 = adult.ob
+#adult.ob2 = filter(filter(adult.ob, year %in% 2012), state %in% filtered.states.selected)
+#adult.ob2 = filter(adult.ob, year %in% 2014)
+#adult.ob2 = adult.ob
 #lin.fit = lm(obesity~. -diabetes-year-state, data = adult.ob2) 
-lin.fit = lm(obesity~inactivity+poverty+chci+fastfood^2+diabetes, data = adult.ob2) 
-lin.fit = lm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, data = adult.ob2) 
-summary(lin.fit)
+#lin.fit = lm(obesity~inactivity+poverty+chci+fastfood^2+diabetes, data = adult.ob2) 
+#lin.fit = lm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, data = adult.ob2) 
+#summary(lin.fit)
 
-sols=lm(obesity~inactivity+poverty+chci+fastfood, data=adult.ob2)
-summary(sols)
-tfe1=plm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, index=c("state","year"), model="within", data=adult.ob2)
-summary(tfe1)
+#sols=lm(obesity~inactivity+poverty+chci+fastfood, data=adult.ob2)
+#summary(sols)
+#tfe1=plm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, index=c("state","year"), model="within", data=adult.ob2)
+#summary(tfe1)
 
 # Boxplot of Obesity in 2011 & 2016
 avg.ob = adult.ob %>% filter( year %in% c(2011, 2016))
 
 bx.plot = boxplot(obesity~year,data=avg.ob, main="Average Obesity in 2011 & 2016", 
-        xlab="Years", ylab="Average Percent Population of Obesity")
+                  xlab="Years", ylab="Average Percent Population of Obesity")
 
 
 ########## Google Vis plot & Shiny - added
@@ -281,49 +281,49 @@ J = gvisMotionChart(adult.ob, idvar="state", timevar="year", xvar = "diabetes", 
                     options=list(width=700, height=600))
 
 # Shiny App
-dashHead = dashboardHeader(title = "Menu")
+dashHead = dashboardHeader(title = "Obesity: 2011-2016")
 
 sideBar = dashboardSidebar(
   disable = TRUE
   #collapsed = TRUE,
   #sidebarMenu(
-    #menuItem("Map 2011 & 2016", tabName = "map"),
-    #menuItem("Dynamic Graph", tabName = "dynamic")
+  #menuItem("Map 2011 & 2016", tabName = "map"),
+  #menuItem("Dynamic Graph", tabName = "dynamic")
   #)
 )
 
 body = dashboardBody(
   #tabItems(
-    #tabItem(tabName = "map",
-      fluidRow(
-        column( width = 6,
-              h2("Obesity in 2011"),
-              htmlOutput("obesity11") ),
-        column( width = 6,
-              h2("Obesity in 2016"),
-              htmlOutput("obesity16") )
-        ),
-      
-      #fluidRow(
-        #box( plotOutput("line", height = 250) )
-      #),
-    #),
-    
-    #tabItem(tabName = "dynamic",
-      fluidRow(
-        tags$div(style = "text-align: center",
-          h2("Dynamic Interactive Graph: Obesity vs ..."),
-          htmlOutput("adultOb")
-        )
-      )
-    #)
+  #tabItem(tabName = "map",
+  fluidRow(
+    column( width = 6,
+            h2("Obesity in 2011"),
+            htmlOutput("obesity11") ),
+    column( width = 6,
+            h2("Obesity in 2016"),
+            htmlOutput("obesity16") )
+  ),
+  
+  #fluidRow(
+  #box( plotOutput("line", height = 250) )
+  #),
+  #),
+  
+  #tabItem(tabName = "dynamic",
+  fluidRow(
+    tags$div(style = "text-align: center",
+             h2("Dynamic Interactive Graph: Obesity vs ..."),
+             htmlOutput("adultOb")
+    )
+  )
+  #)
   #)
 )
 
 ui <- dashboardPage(dashHead,sideBar, body)
 
 server = function(input, output) {
-
+  
   output$obesity11 <- renderGvis({
     map <- G1
   })
@@ -331,7 +331,7 @@ server = function(input, output) {
     map <- G2
   })
   #output$line <- renderPlot({ 
-    #map <- gg.ob
+  #map <- gg.ob
   #})
   output$adultOb <- renderGvis({
     map <- J
