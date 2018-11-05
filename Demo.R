@@ -39,6 +39,10 @@ fastfoodtemp = fastfoodtemp[,c(2,4,5)]
 colnames(fastfoodtemp) = c("state", "ff09","ff14")
 # getting the sum of each state by year
 fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
+<<<<<<< HEAD
+
+=======
+>>>>>>> 23010183d8d754cead803e6966a23764840f9703
 #merge
 fastfood = fastfoodtemp[, c("state", "ff14")]
 fastfood$year = 2014
@@ -110,7 +114,7 @@ obesity = chron.dis %>%
   filter( YearStart %in% (filtered.six.year))
 
 # obesity - plot
-ggplot(data=filter(obesity, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+gg.ob = ggplot(data=filter(obesity, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
   xlab("Years") +
@@ -243,13 +247,27 @@ lin.fit = lm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, data = adul
 summary(lin.fit)
 
 sols=lm(obesity~inactivity+poverty+chci+fastfood, data=adult.ob2)
+<<<<<<< HEAD
+summary(sols)
+tfe1=plm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, index=c("state","year"), model="within", data=adult.ob2)
+summary(tfe1)
+
+# Boxplot of Obesity in 2011 & 2016
+avg.ob = adult.ob %>% filter( year %in% c(2011, 2016))
+
+bx.plot = boxplot(obesity~year,data=avg.ob, main="Average Obesity in 2011 & 2016", 
+        xlab="Years", ylab="Average Percent Population of Obesity")
+
+=======
 summary(ols)
 tfe1=plm(obesity~inactivity+poverty+chci+log(fastfood)+diabetes, index=c("state","year"), model="within", data=adult.ob2)
 summary(tfe1)
 
+>>>>>>> 23010183d8d754cead803e6966a23764840f9703
 
 ########## Google Vis plot & Shiny - added
 # obesity
+
 G1 = gvisGeoChart(filter(adult.ob, year %in% 2011),
                   locationvar = "state", 
                   colorvar = "obesity",
@@ -257,7 +275,7 @@ G1 = gvisGeoChart(filter(adult.ob, year %in% 2011),
                                displayMode="regions", 
                                resolution="provinces",
                                colorAxis="{colors:[\'#87CEEB\', \'#BE2625\']}",
-                               width=800, height=600))
+                               width=600, height=600))
 
 G2 = gvisGeoChart(filter(adult.ob, year %in% 2016),
                   locationvar = "state", 
@@ -266,40 +284,81 @@ G2 = gvisGeoChart(filter(adult.ob, year %in% 2016),
                                displayMode="regions", 
                                resolution="provinces",
                                colorAxis="{colors:[\'#87CEEB\', \'#BE2625\']}",
+<<<<<<< HEAD
+                               width=600, height=600))
+=======
                                width=800, height=600))
 plot(G1)
 print(G2, "US map.html")
+>>>>>>> 23010183d8d754cead803e6966a23764840f9703
 
-
-J = gvisMotionChart(adult.ob, idvar="state", timevar="year", xvar = "inactivity", yvar="obesity",
+J = gvisMotionChart(adult.ob, idvar="state", timevar="year", xvar = "diabetes", yvar="obesity",
                     options=list(width=700, height=600))
 
+<<<<<<< HEAD
+=======
 plot(J)
 
+>>>>>>> 23010183d8d754cead803e6966a23764840f9703
 # Shiny App
 dashHead = dashboardHeader(title = "Menu")
-sideBar = dashboardSidebar()
-dashBoard = dashboardBody(
-  h2("Obesity in 2011"),
-  htmlOutput("obesity11"),
-  h2("Obesity in 2016"),
-  htmlOutput("obesity16"),
-  h2("Obesity for Selected States"),
-  plotOutput("obesityline", height="500px", width="600px"),
-  h2("Motion Chart: Obesity vs ..."),
-  htmlOutput("adultOb")
+
+sideBar = dashboardSidebar(
+  disable = TRUE
+  #collapsed = TRUE,
+  #sidebarMenu(
+    #menuItem("Map 2011 & 2016", tabName = "map"),
+    #menuItem("Dynamic Graph", tabName = "dynamic")
+  #)
 )
 
-ui <- dashboardPage(dashHead,sideBar, dashBoard)
+body = dashboardBody(
+  #tabItems(
+    #tabItem(tabName = "map",
+      fluidRow(
+        column( width = 6,
+              h2("Obesity in 2011"),
+              htmlOutput("obesity11") ),
+        column( width = 6,
+              h2("Obesity in 2016"),
+              htmlOutput("obesity16") )
+        ),
+      
+      #fluidRow(
+        #box( plotOutput("line", height = 250) )
+      #),
+    #),
+    
+    #tabItem(tabName = "dynamic",
+      fluidRow(
+        tags$div(style = "text-align: center",
+          h2("Dynamic Interactive Graph: Obesity vs ..."),
+          htmlOutput("adultOb")
+        )
+      )
+    #)
+  #)
+)
+
+ui <- dashboardPage(dashHead,sideBar, body)
 
 server = function(input, output) {
-  
+
   output$obesity11 <- renderGvis({
     map <- G1
   })
   output$obesity16 <- renderGvis({
     map <- G2
   })
+<<<<<<< HEAD
+  #output$line <- renderPlot({ 
+    #map <- gg.ob
+  #})
+  output$adultOb <- renderGvis({
+    map <- J
+  })
+  
+=======
   output$obesityline <- renderPlot({ 
     reactive({
       map <- ggplot(data=filter(obesity, "LocationDesc" %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
@@ -313,11 +372,12 @@ server = function(input, output) {
   output$adultOb <- renderGvis({
     map <- J
   })
+>>>>>>> 23010183d8d754cead803e6966a23764840f9703
 }
 
 shinyApp(ui, server)
 
-
+# Dynamic Graph: Alabama
 
 ### shiny
 ## reference:
@@ -325,4 +385,10 @@ shinyApp(ui, server)
 # 2. https://shiny.rstudio.com/reference/shiny/0.14/shinyApp.html
 # 3. https://shiny.rstudio.com/articles/html-tags.html
 # 4. https://magesblog.com/post/2013-02-26-first-steps-of-using-googlevis-on-shiny/
+<<<<<<< HEAD
+# 5. https://rstudio.github.io/shinydashboard/structure.html
+
+
+=======
+>>>>>>> 23010183d8d754cead803e6966a23764840f9703
 
