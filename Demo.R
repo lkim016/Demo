@@ -350,3 +350,4 @@ shinyApp(ui, server)
 # 4. https://magesblog.com/post/2013-02-26-first-steps-of-using-googlevis-on-shiny/
 # 5. https://rstudio.github.io/shinydashboard/structure.html
 
+
