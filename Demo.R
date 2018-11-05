@@ -51,7 +51,7 @@ fastfoodtemp = read_excel("February2014.xlsx", sheet = "RESTAURANTS")
 fastfoodtemp = fastfoodtemp[,c(2,4,5)]
 colnames(fastfoodtemp) = c("state", "ff07","ff11")
 # getting the sum of each state by year
-fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
+# fastfoodtemp = fastfoodtemp %>% group_by(state) %>% summarise_all(funs(sum))
 #merge
 fastfoodtemp = fastfoodtemp[, c("state", "ff11")]
 fastfoodtemp$year = 2011
@@ -330,7 +330,6 @@ server = function(input, output) {
   output$obesity16 <- renderGvis({
     map <- G2
   })
-<<<<<<< HEAD
   #output$line <- renderPlot({ 
     #map <- gg.ob
   #})
