@@ -1,7 +1,7 @@
 ### Lori Kim & Cindy So
 ## 
 
-setwd("/Volumes/LEXAR/DATA SCIENCE/Demo")
+setwd("/Volumes/LEXAR/DATA SCIENCE/Demo/Demo-master")
 setwd("/Users/munchbook/Desktop/Cindy Class")
 
 #install.packages("maps")
