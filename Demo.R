@@ -111,7 +111,7 @@ obesity = chron.dis %>%
   filter( YearStart %in% (filtered.six.year))
 
 # obesity - plot
-gg.ob = ggplot(data=filter(obesity, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+ggplot(data=filter(obesity, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
   geom_line() +
   geom_point() +
   xlab("Years") +
@@ -127,14 +127,6 @@ inactivity = chron.dis %>%
   filter(LocationDesc %in% filtered.states.full) %>%
   filter( YearStart %in% filtered.six.year)
 
-# inactivity - plot
-ggplot(data=filter(inactivity, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
-  geom_line() +
-  geom_point() +
-  xlab("Years") +
-  ylab("Percent") + 
-  ggtitle("Inactivity")
-
 # poverty - getting poverty stats
 poverty = chron.dis %>%
   select(-one_of(c("YearEnd"))) %>%
@@ -143,14 +135,6 @@ poverty = chron.dis %>%
   filter(str_detect(Stratification1, "Overall" )) %>%
   filter( LocationDesc %in% filtered.states.full) %>%
   filter( YearStart %in% filtered.six.year)
-
-# poverty - plot
-ggplot(data=filter(poverty, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
-  geom_line() +
-  geom_point() +
-  xlab("Years") +
-  ylab("Percent") + 
-  ggtitle("poverty")
 
 # adults with diabetes - adult diabetes stats
 diabetes = chron.dis %>%
@@ -161,14 +145,6 @@ diabetes = chron.dis %>%
   filter( LocationDesc %in% filtered.states.full) %>%
   filter( YearStart %in% filtered.six.year)
 
-# adults with diabetes - plot
-ggplot(data=filter(diabetes, LocationDesc  %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
-  geom_line() +
-  geom_point() +
-  xlab("Years") +
-  ylab("Percent") + 
-  ggtitle("Adults with Diabetes")
-
 # fitness 300 mins / wk - 5 hrs/wk moderate-intense aerobic stats
 fitness = nutri %>%
   select(-one_of(c("YearEnd"))) %>%
@@ -177,13 +153,6 @@ fitness = nutri %>%
   filter( LocationDesc %in% filtered.states.full) %>%
   filter( YearStart %in% filtered.six.year)
 
-# fitness 300 mins / wk - plot
-ggplot(data=filter(fitness, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
-  geom_line() +
-  geom_point() +
-  xlab("Years") +
-  ylab("Percent") + 
-  ggtitle("5 hrs/wk moderate-intense aerobic...")
 
 # chci - filter
 chci2 = chci2 %>%
@@ -205,13 +174,6 @@ fastfood = fastfood %>%
   filter( year %in% filtered.six.year)
 fastfood = fastfood %>% select(one_of(c("states", "year", "dataValue")))
 
-# fast food - plot
-ggplot(data=fastfood, aes(x=year, y=dataValue, group=states, colour=states)) +
-  geom_line() +
-  geom_point() +
-  xlab("Years") +
-  ylab("Counts") + 
-  ggtitle("Fast Food Restaurant")
 
 # clean up data more LocationDesc, YearStart, DataValue for adult obesity
 obesity = obesity %>% select (one_of(c("LocationDesc","YearStart", "DataValue")))
@@ -249,10 +211,7 @@ colnames(adult.ob) = c("state", "year", "obesity", "inactivity", "poverty","diab
 #summary(tfe1)
 
 # Boxplot of Obesity in 2011 & 2016
-avg.ob = adult.ob %>% filter( year %in% c(2011, 2016))
-
-bx.plot = boxplot(obesity~year,data=avg.ob, main="Average Obesity in 2011 & 2016", 
-                  xlab="Years", ylab="Average Percent Population of Obesity")
+# avg.ob = adult.ob %>% filter( year %in% c(2011, 2016))
 
 
 ########## Google Vis plot & Shiny - added
@@ -301,19 +260,22 @@ body = dashboardBody(
             htmlOutput("obesity11") ),
     column( width = 6,
             h2("Obesity in 2016"),
-            htmlOutput("obesity16") )
-  ),
+            htmlOutput("obesity16")
+            )
+    ),
   
-  #fluidRow(
-  #box( plotOutput("line", height = 250) )
-  #),
-  #),
+  fluidRow(
+    column(8, align = "center", offset = 2,
+      h2("Box Plot: Average Obesity"),
+      plotOutput("box")
+    )
+  ),
   
   #tabItem(tabName = "dynamic",
   fluidRow(
     tags$div(style = "text-align: center",
-             h2("Dynamic Interactive Graph: Obesity vs ..."),
-             htmlOutput("adultOb")
+      h2("Dynamic Interactive Graph: Obesity vs ..."),
+      htmlOutput("adultOb")
     )
   )
   #)
@@ -330,9 +292,10 @@ server = function(input, output) {
   output$obesity16 <- renderGvis({
     map <- G2
   })
-  #output$line <- renderPlot({ 
-  #map <- gg.ob
-  #})
+  output$box <- renderPlot({
+      boxplot(obesity~year,data=adult.ob, main="Average Obesity in 2011 & 2016", 
+                      xlab="Years", ylab="Average Percent Population of Obesity")
+  })
   output$adultOb <- renderGvis({
     map <- J
   })
@@ -351,3 +314,44 @@ shinyApp(ui, server)
 # 5. https://rstudio.github.io/shinydashboard/structure.html
 
 
+
+#### ggplots
+# inactivity - plot
+ggplot(data=filter(inactivity, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Percent") + 
+  ggtitle("Inactivity")
+
+# poverty - plot
+ggplot(data=filter(poverty, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Percent") + 
+  ggtitle("poverty")
+
+# adults with diabetes - plot
+ggplot(data=filter(diabetes, LocationDesc  %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Percent") + 
+  ggtitle("Adults with Diabetes")
+
+# fitness 300 mins / wk - plot
+ggplot(data=filter(fitness, LocationDesc %in% filtered.states.selected), aes(x=YearStart, y=DataValue, group=LocationDesc, colour=LocationDesc)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Percent") + 
+  ggtitle("5 hrs/wk moderate-intense aerobic...")
+
+# fast food - plot
+ggplot(data=fastfood, aes(x=year, y=dataValue, group=states, colour=states)) +
+  geom_line() +
+  geom_point() +
+  xlab("Years") +
+  ylab("Counts") + 
+  ggtitle("Fast Food Restaurant")
