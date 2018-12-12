@@ -1,8 +1,8 @@
 ### Lori Kim & Cindy So
 ## 
 
-setwd("/Volumes/LEXAR/DATA SCIENCE/Demo/Demo-master")
-setwd("/Users/munchbook/Desktop/Cindy Class")
+#setwd("C:/Users/lkim016/Desktop")
+#setwd("/Users/munchbook/Desktop/Cindy Class")
 
 #install.packages("maps")
 #install.packages("ggplot2") 
