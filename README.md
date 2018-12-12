@@ -27,6 +27,6 @@ Objective: Analyze the U.S. Chronic Disease indicators to explore the correlatio
 
 2. Run the response variable and its features in a regression model to analyze the statistical significance of the variables against the response variable.
 
-3. Employ ggplot to display graphs, maps, and plots of results.
+3. Employ ggplot2 package to display graphs, maps, and plots of results.
 
-4. Deploy plots and findings using the Shiny library.
+4. Deploy plots and findings using the Shiny package.
